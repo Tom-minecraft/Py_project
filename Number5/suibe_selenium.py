@@ -130,8 +130,8 @@ def scrape_with_requests(cookie_dict, captcha_result, lt, execution):
 if __name__ == '__main__':
     # 启动无头浏览器
     options = webdriver.ChromeOptions()
-    options.add_argument('--headless')
-    browser = webdriver.Chrome(options=options)
+
+    browser = webdriver.Chrome()
 
     try:
         # Step 1: 使用 Selenium 获取 Cookies、验证码、以及动态字段
