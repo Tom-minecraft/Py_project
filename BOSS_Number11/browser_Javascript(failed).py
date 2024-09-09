@@ -14,12 +14,12 @@ limit = 10
 context = sync_playwright().start()
 browser = context.chromium.launch()
 page = browser.new_page()
-page.route("./js/chunk-10192a00.243cb8b7.js",lambda route : route.fulfill(path="./js/chunk.js"))
+page.route("./js/chunk-10192a00.243cb8b7.js",lambda route : route.fulfill(path="./js/chunk-10192a00.243cb8b7.js"))
 page.goto(BASE_URL)
 
 def get_token(offset):
     result = page.evaluate("""() =>{ 
-    return window.encrypt("%s","%s")
+    return window.enc("%s","%s")
     }""" %('/api/movie',offset))
     return result
 

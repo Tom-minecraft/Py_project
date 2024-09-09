@@ -13,6 +13,13 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 import execjs
+import pymongo
+import ddddocr
+ocr = ddddocr.DdddOcr()
+
+client = pymongo.MongoClient('localhost', 27017)
+db = client.Mine
+collection = db.Schedule
 
 # 日志配置
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -45,14 +52,21 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
 }
 
+def save_data(data):
+    collection.update_one({
+        'name': data.get('course').get('nameZh')
+    }, {
+        '$set': data
+    }, upsert=True)
+
 # 图像预处理函数
-def preprocess(image):
-    image_process = image.convert('L')
-    array = np.array(image_process)
-    threshold = np.mean(array) - 20  # 动态阈值调整
-    array = np.where(array > threshold, 255, 0)
-    image_process = Image.fromarray(array.astype('uint8'))
-    return image_process
+# def preprocess(image):
+#     image_process = image.convert('L')
+#     array = np.array(image_process)
+#     threshold = np.mean(array) - 20  # 动态阈值调整
+#     array = np.where(array > threshold, 255, 0)
+#     image_process = Image.fromarray(array.astype('uint8'))
+#     return image_process
 
 # 重试机制：处理登录和获取Cookies
 @retry(stop_max_attempt_number=5, retry_on_result = lambda x : x is False)
@@ -67,9 +81,11 @@ def selenium_login_and_get_cookies(browser):
         # 处理验证码
         captcha = browser.find_element(By.XPATH, '//*[@id="captchaImg"]')
         image = Image.open(BytesIO(captcha.screenshot_as_png))
-        image_result = preprocess(image)
-        captcha_result = tesserocr.image_to_text(image_result)
-        captcha_result = re.sub('[^A-Za-z0-9]', '', captcha_result)
+        captcha_result = ocr.classification(image)
+
+        # image_result = preprocess(image)
+        # captcha_result = tesserocr.image_to_text(image_result)
+        # captcha_result = re.sub('[^A-Za-z0-9]', '', captcha_result)
 
         # 获取动态字段
         lt = browser.find_element(By.NAME, 'lt').get_attribute('value')
@@ -115,10 +131,11 @@ def scrape_with_requests(cookie_dict, captcha_result, lt, execution):
         session.cookies.set(name, value)
 
     try:
-        url = 'https://nbkjw.suibe.edu.cn/student/home'
-        response = session.get(url, headers=headers, proxies=proxies, timeout=10)
+        url = "https://nbkjw.suibe.edu.cn/student/for-std/course-table/get-data?semesterId=53&dataId=434729&bizTypeId=2"
+
+        response = session.get(url, headers=headers)
         response.raise_for_status()  # 检查 HTTP 响应是否成功
-        return response.text
+        return response.json()
     except requests.exceptions.Timeout:
         logging.error("Request timed out.")
     except requests.exceptions.HTTPError as http_err:
@@ -141,7 +158,12 @@ if __name__ == '__main__':
             # Step 2: 使用 requests 提交表单并抓取页面
             session_response = scrape_with_requests(cookies, captcha_result, lt, execution)
             if session_response:
-                print(session_response)
+                for data in session_response.get('lessons'):
+                    logging.info(f"lesson:{data}")
+                    save_data(data)
+                    logging.info("Successfully got it")
+
+
             else:
                 logging.error("Failed to fetch session content.")
         else:
