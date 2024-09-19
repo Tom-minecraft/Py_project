@@ -34,12 +34,12 @@ data = {
 }
 
 BASE_URL = 'https://passport.baidu.com/v2/?login&tpl=mn&u=http%3A%2F%2Fwww.baidu.com%2F&sms=5'
-TARGET_URL = 'https://mbd.baidu.com/newspage/data/landingsuper?context=%7B%22nid%22%3A%22news_9824851592028309862%22%7D&n_type=-1&p_from=-1'
+TARGET_URL =' https://mbd.baidu.com/newspage/data/landingsuper?context=%7B%22nid%22%3A%22news_9469499570077154318%22%7D&n_type=-1&p_from=-1'
 username = 18249555724
 password = "chqteng1234"
 page = ChromiumPage()
 
-def login(username, password):
+def login_then_get_cookies(username, password):
     page.get(BASE_URL)
     page.wait(5)
     page.ele("#TANGRAM__PSP_3__userName").input(username)
@@ -89,8 +89,14 @@ def Get_Base_html():
 
 
 def main():
-    cookies = login(username, password)
-    response = requests.get(TARGET_URL, cookies=cookies, headers=headers , proxies=proxies )
+    cookies = login_then_get_cookies(username, password)
+    params = {
+        'context': '{"nid":"news_9469499570077154318"}',
+        'n_type': '-1',
+        'p_from': '-1',
+    }
+
+    response = requests.get('https://mbd.baidu.com/newspage/data/landingsuper', params=params, cookies=cookies , proxies=proxies , headers=headers)
     pprint.pprint(response.text)
 
 
