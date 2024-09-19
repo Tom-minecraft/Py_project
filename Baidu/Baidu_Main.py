@@ -33,7 +33,7 @@ data = {
 
 }
 
-BASE_URL = 'https://www.baidu.com'
+BASE_URL = 'https://passport.baidu.com/v2/?login&tpl=mn&u=http%3A%2F%2Fwww.baidu.com%2F&sms=5'
 TARGET_URL = 'https://mbd.baidu.com/newspage/data/landingsuper?context=%7B%22nid%22%3A%22news_9824851592028309862%22%7D&n_type=-1&p_from=-1'
 username = 18249555724
 password = "chqteng1234"
@@ -42,11 +42,10 @@ page = ChromiumPage()
 def login(username, password):
     page.get(BASE_URL)
     page.wait(5)
-    page.ele("#TANGRAM__PSP_11__userName").input(username)
-    page.ele("#TANGRAM__PSP_11__password").input(password)
-    page.ele("#TANGRAM__PSP_11__isAgree").click()
+    page.ele("#TANGRAM__PSP_3__userName").input(username)
+    page.ele("#TANGRAM__PSP_3__password").input(password)
     try:
-        page.ele("#TANGRAM__PSP_11__submit").click()
+        page.ele("#TANGRAM__PSP_3__submit").click()
         page.wait(3)  # 确保页面加载完成
         cookies = get_cookies()
         page.close()
