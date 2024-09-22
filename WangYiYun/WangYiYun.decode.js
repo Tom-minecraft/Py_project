@@ -43,8 +43,8 @@ function decryptedString(a, b) {
         f = 0; f <= biHighIndex(g); ++f)
             d += String.fromCharCode(255 & g.digits[f], g.digits[f] >> 8);
     return 0 == d.charCodeAt(d.length - 1) && (d = d.substring(0, d.length - 1)),
-    d
-}
+    d}
+
 function setMaxDigits(a) {
     maxDigits = a,
     ZERO_ARRAY = new Array(maxDigits);

@@ -28,16 +28,17 @@ proxies = {
     'https': 'http://127.0.0.1:7897'
 }
 
-def login(USERNAME,PASSWORD):
+
+def login(USERNAME, PASSWORD):
     page = ChromiumPage()
     page.get(Base_url)
     page.ele("//input[@class=\"_2OT0mQUQ\"]").input(USERNAME)
     page.ele("//input[@class=\"sR89MU1J\"]").input(PASSWORD)
     page.ele("//div[@class=\"tan2MIhq\"]").click()
 
+
 def main():
-    login(USERNAME,PASSWORD)
+    login(USERNAME, PASSWORD)
 
 
-if __name__ == '__main__':
     main()
