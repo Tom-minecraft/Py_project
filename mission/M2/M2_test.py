@@ -6,6 +6,10 @@ import requests
 from lxml import etree
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+proxies = {
+    'http': 'http://127.0.0.1:7897',
+    'https': 'http://127.0.0.1:7897'
+}
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -15,8 +19,8 @@ node = execjs.get()
 with open("./M2_decode.js", "r", encoding="utf-8") as f:
     js_ctx = node.compile(f.read())
 
-username = js_ctx.call("RSA_Public_Encrypt", "15794140874")
-password = js_ctx.call("RSA_Public_Encrypt", "Aa123456")
+username = js_ctx.call("RSA_Public_Encrypt", "19504667538")
+password = js_ctx.call("RSA_Public_Encrypt", "Chqteng1234")
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36 Edg/129.0.0.0'
@@ -31,7 +35,7 @@ data = {
 }
 
 session = requests.Session()
-response = session.post('https://gw.datayes.com/usermaster/authenticate/web.json', data=data, headers=headers)
+response = session.post('https://gw.datayes.com/usermaster/authenticate/web.json', data=data, headers=headers , proxies= proxies)
 
 # Check if authentication was successful
 if response.status_code != 200:
@@ -55,7 +59,7 @@ def parse_detail_page(res):
 # Scrape page
 def scrape_page(url):
     try:
-        response = session.get(url, headers=headers)
+        response = session.get(url, headers=headers , proxies= proxies )
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
@@ -67,7 +71,7 @@ def scrape_page(url):
 def index_page(index):
     url = f"https://gw.datayes.com/rrp_adventure/web/search?pageNow={index}&authorId=&isOptional=false&orgName=&reportType=COMPANY&secCodeList=&reportSubType=&industry=&ratingType=&pubTimeStart=20140921&pubTimeEnd=20240921&type=EXTERNAL_REPORT&pageSize=40&sortOrder=desc&query=&minPageCount=&maxPageCount="
     try:
-        res = session.get(url, headers=headers)
+        res = session.get(url, headers=headers , proxies= proxies)
         res.raise_for_status()
         result = res.json()
         items = result['data']['list']
@@ -91,7 +95,7 @@ def main():
         with ThreadPoolExecutor(max_workers=10) as executor:
             future_to_url = {}
 
-            for i in range(1, 251):
+            for i in range(6, 11):
                 detail_urls = index_page(i)
 
                 if detail_urls:
